@@ -57,15 +57,6 @@ program liquidity_pool.aleo {
         let liquidity: u128 = amount;
         assert(liquidity > 0u128);
 
-        let tokenInfo: TokenInfo = Mapping::get_or_use(tokens, pid, TokenInfo {
-            name: 5183377571718029925300968712562field,
-            symbol: 4281168field,
-            decimals: 6u8,
-            total_supply: 0u128,
-            admin: aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc,
-        });
-        assert_eq(tokenInfo.total_supply, 0u128);
-
         let pool: Pool = Mapping::get_or_use(pools, pid, Pool {
             reserve_token: 0u128,
         });
@@ -99,7 +90,6 @@ program liquidity_pool.aleo {
     ) {
         let pid: field = get_pool_id(token);
         let pool: Pool = Mapping::get(pools, pid);
-        let tokenInfo: TokenInfo = Mapping::get(tokens, pid);
 
         // update balances
         let bid: field = get_balance_id(token, caller);
@@ -108,13 +98,6 @@ program liquidity_pool.aleo {
         // mint liquidity
         let bid_p: field = get_balance_id(pid, to);
         Mapping::set(balances, bid_p, Mapping::get_or_use(balances, bid_p, 0u128) + liquidity);
-        Mapping::set(tokens, pid, TokenInfo {
-            name: tokenInfo.name,
-            symbol: tokenInfo.symbol,
-            decimals: tokenInfo.decimals,
-            total_supply: tokenInfo.total_supply + liquidity,
-            admin: tokenInfo.admin,
-        });
 
         // update pool
         Mapping::set(pools, pid, Pool {
@@ -140,7 +123,6 @@ program liquidity_pool.aleo {
         public to: address,
     ) {
         let pid: field = get_pool_id(token);
-        let tokenInfo: TokenInfo = Mapping::get(tokens, pid);
         let pool: Pool = Mapping::get(pools, pid);
 
         // calculate token amounts
@@ -149,13 +131,6 @@ program liquidity_pool.aleo {
         // burn liquidity
         let bid_p: field = get_balance_id(pid, caller);
         Mapping::set(balances, bid_p, Mapping::get(balances, bid_p) - amount);
-        Mapping::set(tokens, pid, TokenInfo {
-            name: tokenInfo.name,
-            symbol: tokenInfo.symbol,
-            decimals: tokenInfo.decimals,
-            total_supply: tokenInfo.total_supply - amount,
-            admin: tokenInfo.admin,
-        });
 
         // update pool
         Mapping::set(pools, pid, Pool {
@@ -166,5 +141,7 @@ program liquidity_pool.aleo {
         let bid: field = get_balance_id(token, to);
         Mapping::set(balances, bid, Mapping::get_or_use(balances, bid, 0u128) + amount);
     }
+
+
 
 }
