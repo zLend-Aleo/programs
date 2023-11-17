@@ -4,6 +4,7 @@ program liquidity_pool.aleo {
     const FEE: u32 = 3u32;
 
     mapping balances: field => u128;
+    mapping loans: field => u128;
     mapping tokens: field => TokenInfo;
     mapping pools: field => Pool;
 
@@ -16,6 +17,7 @@ program liquidity_pool.aleo {
     }
 
     struct Pool {
+        current_loaned_token: u128, // loaned amount
         reserve_token: u128, // staked liquudity amount
     }
 
@@ -26,6 +28,12 @@ program liquidity_pool.aleo {
 
     inline get_balance_id(token_: field, user_: address) -> field {
         // copy to avoid compiling error
+        let token: field = token_;
+        let user: address = user_;
+        return BHP256::hash_to_field(BalanceKeyData {token, user});
+    }
+
+    inline get_loan_id(token_: field, user_: address) -> field {
         let token: field = token_;
         let user: address = user_;
         return BHP256::hash_to_field(BalanceKeyData {token, user});
@@ -58,6 +66,7 @@ program liquidity_pool.aleo {
         assert(liquidity > 0u128);
 
         let pool: Pool = Mapping::get_or_use(pools, pid, Pool {
+            current_loaned_token: 0u128,
             reserve_token: 0u128,
         });
 
@@ -67,6 +76,7 @@ program liquidity_pool.aleo {
 
         // update Pool
         Mapping::set(pools, pid, Pool {
+            current_loaned_token: pool.current_loaned_token + amount,
             reserve_token: pool.reserve_token + amount,
         });
     }
@@ -99,6 +109,7 @@ program liquidity_pool.aleo {
 
         // update pool
         Mapping::set(pools, pid, Pool {
+            current_loaned_token: pool.current_loaned_token + amount,
             reserve_token: pool.reserve_token + amount,
         });
     }
@@ -132,6 +143,7 @@ program liquidity_pool.aleo {
 
         // update pool
         Mapping::set(pools, pid, Pool {
+            current_loaned_token: pool.current_loaned_token - amount,
             reserve_token: pool.reserve_token - amount,
         });
 
@@ -157,12 +169,68 @@ program liquidity_pool.aleo {
     ) {
         let pid: field = get_pool_id(token);
         let pool: Pool = Mapping::get(pools, pid);
-        // check if this person is eligible to get loan
+        // check if this person is eligible to get loan, check ID
+        // TODO
+
+        // check if this person has payed back the loan
+        let lid: field = get_loan_id(token, caller);
+        let loan_amount: u128 = Mapping::get_or_use(loans, lid, 0u128);
+        assert(loan_amount == 0u128);
 
         // check if the loan amount exceeds the maximum allowance
+        assert(pool.reserve_token - pool.current_loaned_token >= amount);
 
+        // update loans
+        Mapping::set(loans, lid, loan_amount + amount);
 
-        // 
+        // update balances
+        let bid: field = get_balance_id(token, caller);
+        Mapping::set(balances, bid, Mapping::get_or_use(balances, bid, 0u128) + amount);
+
+        // update pool
+        Mapping::set(pools, pid, Pool {
+            current_loaned_token: pool.current_loaned_token + amount,
+            reserve_token: pool.reserve_token,
+        });        
     }
 
+    transition repay_loan(
+        public token: field,
+        public amount: u128,
+    ) {
+        assert(amount > 0u128);
+        return then finalize(self.caller, token, amount);
+    }
+
+    finalize repay_loan(
+        public caller: address,
+        public token: field,
+        public amount: u128,
+    ) {
+        let pid: field = get_pool_id(token);
+        let pool: Pool = Mapping::get(pools, pid);
+
+        // check if this person has owes any loan
+        let lid: field = get_loan_id(token, caller);
+        let loan_amount: u128 = Mapping::get_or_use(loans, lid, 0u128);
+        assert(loan_amount > 0u128);
+
+        // check if the loan repay amount exceeds the original liquidity
+        assert(loan_amount >= amount);
+
+        // update loans
+        Mapping::set(loans, lid, loan_amount - amount);
+
+        // update balances
+        let bid: field = get_balance_id(token, caller);
+        Mapping::set(balances, bid, Mapping::get_or_use(balances, bid, 0u128) - amount);
+
+        // update pool
+        Mapping::set(pools, pid, Pool {
+            current_loaned_token: pool.current_loaned_token - amount,
+            reserve_token: pool.reserve_token,
+        });        
+    }
+
+    
 }
