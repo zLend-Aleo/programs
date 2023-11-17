@@ -20,7 +20,10 @@ program zkid_nft_001.aleo {
 
     record NFT {
         private owner: address,
-        private data: BaseURI,
+        data0: u128, // Part 1 of the base uri in bits. Bits should be the representation of the hexadecimal bytes for the ASCII text of the URL
+        data1: u128,
+        data2: u128,
+        data3: u128
         // private edition: scalar, // which edition of the nft this particular one is -- will be 0 for unique NFTs
     }
 
@@ -108,7 +111,10 @@ program zkid_nft_001.aleo {
         assert_eq(self.caller, aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw);
         return NFT {
             owner: requester,
-            data: personal_info,
+            data0: personal_info.data0,
+            data1: personal_info.data1,
+            data2: personal_info.data2,
+            data3: personal_info.data3,
         } then finalize ();
     }
 
@@ -203,7 +209,10 @@ program zkid_nft_001.aleo {
     {
         return NFT {
             owner: receiver,
-            data: nft.data,
+            data0: nft.data0,
+            data1: nft.data1,
+            data2: nft.data2,
+            data3: nft.data3,
         };
     }
 
@@ -211,7 +220,10 @@ program zkid_nft_001.aleo {
         return (
             NFT {
                 owner: nft.owner,
-                data: nft.data,
+                data0: nft.data0,
+                data1: nft.data1,
+                data2: nft.data2,
+                data3: nft.data3,
             },
             NFT_ownership {
                 owner: prove_to,
