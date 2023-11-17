@@ -142,6 +142,17 @@ program liquidity_pool.aleo {
         Mapping::set(balances, bid, Mapping::get_or_use(balances, bid, 0u128) + amount);
     }
 
+    // ========================= loan interactions =========================
 
+    transition get_loan(
+        public token: field,
+        public amount: u128,
+        public to: address,
+    ) {
+        assert(amount > 0u128);
+        return then finalize(self.caller, token, amount, to);
+    }
+
+    
 
 }
