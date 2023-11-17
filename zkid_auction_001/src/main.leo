@@ -5,6 +5,8 @@ import credits.leo;
 
 program zkid_auction_001.aleo {
 
+    // Auction on certain loan ID starts
+    mapping start: u128 => bool;
     // Loan ID to mark as paid
     mapping paid: u128 => bool;
 
@@ -24,6 +26,14 @@ program zkid_auction_001.aleo {
         is_paid: bool,
     }
 
+    transition start_auction(loan_id: u128) {
+        return then finalize (loan_id);
+    }
+
+    finalize start_auction(loan_id: u128) {
+        start.set(loan_id, true);
+    }
+
     // Returns a new bid.
     // - `bidder` : The address of the account that placed the bid.
     // - `amount` : The amount of the bid.
@@ -38,7 +48,12 @@ program zkid_auction_001.aleo {
             loan_id: loan_id,
             is_winner: false,
             is_paid: false,
-        };
+        } then finalize (loan_id);
+    }
+
+    finalize place_bid(loan_id: u128) {
+        // make sure auction started
+        assert_eq(start.get(loan_id), true);
     }
 
     // Returns the winning bid.
@@ -50,6 +65,8 @@ program zkid_auction_001.aleo {
     transition resolve(first: Bid, second: Bid) -> Bid {
         // Ensure the caller is the auctioneer.
         assert_eq(self.caller, aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw);
+        // Make sure comparing the same loan.
+        assert_eq(first.loan_id, second.loan_id);
         // Resolve the winner of the auction.
         if (first.amount >= second.amount) {
             return first;
