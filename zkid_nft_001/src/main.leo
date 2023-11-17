@@ -104,7 +104,7 @@ program zkid_nft_001.aleo {
         toggle_settings.set(1u8, 0u32); // block height when mint is allowed
     }
 
-    transition issue_zkid(requester: address, personal_info: BaseURI) -> NFT {
+    transition issue_zkid(private requester: address, private personal_info: BaseURI) -> NFT {
         assert_eq(self.caller, aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw);
         return NFT {
             owner: requester,
