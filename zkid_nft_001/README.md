@@ -14,7 +14,8 @@
 ## Our Steps
 ### Admin
 1. Initialize collection (symbol: u128)
-2. Issue NFT ()
+2. issue_zkid (requester: address, personal_info: BaseURI)
 
 ### User
 1. prove_ownership (private nft: NFT, private prove_to: address)
+2. transfer_private (nft: NFT, private receiver: address)
