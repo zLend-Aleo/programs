@@ -18,4 +18,4 @@
 
 ### User
 1. prove_ownership (private nft: NFT, private prove_to: address)
-2. transfer_private (nft: NFT, private receiver: address)
+2. zkid_transfer_private (nft: NFT, private receiver: address)
