@@ -1,0 +1,3 @@
+[submodule "art-factory"]
+	path = art-factory
+	url = https://github.com/demox-labs/art-factory.git
