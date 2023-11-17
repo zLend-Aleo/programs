@@ -1,3 +1,7 @@
+# Biggest challenge
+1. Programs could not own private states (cannot automate the process of transferring records).
+2. Caller must be owner (cannot transfer credits on behalf of others).
+
 # Programs flow / steps
 ## zkID NFT Program
 ### Admin
