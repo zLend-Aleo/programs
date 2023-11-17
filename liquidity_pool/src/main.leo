@@ -1,6 +1,8 @@
 // The 'liquidity_pool' program.
 program liquidity_pool.aleo {
 
+    const FEE: u32 = 3u32;
+
     mapping balances: field => u128;
     mapping tokens: field => TokenInfo;
     mapping pools: field => Pool;
@@ -14,7 +16,7 @@ program liquidity_pool.aleo {
     }
 
     struct Pool {
-        reserve_token: u128,
+        reserve_token: u128, // staked liquudity amount
     }
 
     struct BalanceKeyData {
@@ -41,17 +43,15 @@ program liquidity_pool.aleo {
     transition create_pool(
         public token: field,
         public amount: u128,
-        public to: address
      ) {
         assert(amount > 0u128);
-        return then finalize(self.caller, token, amount, to);
+        return then finalize(self.caller, token, amount);
     }
 
     finalize create_pool(
         public caller: address,
         public token: field,
         public amount: u128,
-        public to: address
     ) {
         let pid: field = get_pool_id(token);
         let liquidity: u128 = amount;
@@ -62,7 +62,7 @@ program liquidity_pool.aleo {
         });
 
         // mint liquidity pbid == Pool Balance Id
-        let pbid: field = get_balance_id(pid, to);
+        let pbid: field = get_balance_id(pid, caller);
         Mapping::set(balances, pbid, Mapping::get_or_use(balances, pbid, 0u128) + liquidity);
 
         // update Pool
@@ -75,10 +75,9 @@ program liquidity_pool.aleo {
         public token: field,
         public amount: u128,
         public min: u128,
-        public to: address
      ) {
         assert(amount > 0u128 && amount >= min);
-        return then finalize(self.caller, token, amount, min, to);
+        return then finalize(self.caller, token, amount, min);
     }
 
     finalize add_liquidity(
@@ -86,17 +85,16 @@ program liquidity_pool.aleo {
         public token: field,
         public amount: u128,
         public min: u128,
-        public to: address
     ) {
         let pid: field = get_pool_id(token);
         let pool: Pool = Mapping::get(pools, pid);
 
         // update balances
         let bid: field = get_balance_id(token, caller);
-        Mapping::set(balances, bid, Mapping::get(balances, bid) - amount_a);
+        Mapping::set(balances, bid, Mapping::get(balances, bid) - amount);
 
         // mint liquidity
-        let bid_p: field = get_balance_id(pid, to);
+        let bid_p: field = get_balance_id(pid, caller);
         Mapping::set(balances, bid_p, Mapping::get_or_use(balances, bid_p, 0u128) + liquidity);
 
         // update pool
@@ -109,10 +107,9 @@ program liquidity_pool.aleo {
         public token: field,
         public amount: u128,
         public min: u128,
-        public to: address,
      ) {
         assert(amount > 0u128);
-        return then finalize(self.caller, token, amount, min, to);
+        return then finalize(self.caller, token, amount, min);
     }
 
     finalize remove_liquidity(
@@ -120,13 +117,14 @@ program liquidity_pool.aleo {
         public token: field,
         public amount: u128,
         public min: u128,
-        public to: address,
     ) {
         let pid: field = get_pool_id(token);
         let pool: Pool = Mapping::get(pools, pid);
 
         // calculate token amounts
         assert(amount >= min);
+        
+        // check if the loan is still under the allowance after withdraw
 
         // burn liquidity
         let bid_p: field = get_balance_id(pid, caller);
@@ -138,7 +136,7 @@ program liquidity_pool.aleo {
         });
 
         // send tokens
-        let bid: field = get_balance_id(token, to);
+        let bid: field = get_balance_id(token, caller);
         Mapping::set(balances, bid, Mapping::get_or_use(balances, bid, 0u128) + amount);
     }
 
@@ -147,12 +145,24 @@ program liquidity_pool.aleo {
     transition get_loan(
         public token: field,
         public amount: u128,
-        public to: address,
     ) {
         assert(amount > 0u128);
-        return then finalize(self.caller, token, amount, to);
+        return then finalize(self.caller, token, amount);
     }
 
-    
+    finalize get_loan(
+        public caller: address,
+        public token: field,
+        public amount: u128,
+    ) {
+        let pid: field = get_pool_id(token);
+        let pool: Pool = Mapping::get(pools, pid);
+        // check if this person is eligible to get loan
+
+        // check if the loan amount exceeds the maximum allowance
+
+
+        // 
+    }
 
 }
