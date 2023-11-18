@@ -12,6 +12,22 @@
 1. prove_ownership (private nft: NFT, private prove_to: address)
 2. zkid_transfer_private (nft: NFT, private receiver: address)
 
+## zkID LP/Loan Program
+### Liquidity provider
+1. Add liquidity
+2. Remove liquidity
+3. (Earn interest)
+4. Withdraw to LP (Admin function)
+
+### Borrower
+1. Get loan
+2. Send loan amount (Admin function)
+3. Repay loan
+4. Return Id (Admin function)
+
+### Anyone
+1. Liquidate to enable auction if duration > block.height
+
 ## zkID Debt Auction
 ### Admin
 1. Start auction with loan id
