@@ -10,11 +10,8 @@ struct Pool:
     current_loaned_token as u64;
     reserve_token as u64;
 
-struct LoanID:
-    borrower as address;
-    id as u128;
-
 struct Loan:
+    borrower as address;
     amount as u64;
     duration as u32;
 
@@ -30,7 +27,7 @@ mapping loan_id:
 
 
 mapping loan:
-	key as LoanID.public;
+	key as u128.public;
 	value as Loan.public;
 
 
@@ -123,11 +120,10 @@ finalize get_loan:
     sub r4.reserve_token r4.current_loaned_token into r5;
     gte r5 r1 into r6;
     assert.eq r6 true;
-    cast r0 r3 into r7 as LoanID;
-    cast r1 r2 into r8 as Loan;
-    set r8 into loan[r7];
-    add r4.current_loaned_token r1 into r9;
-    cast r9 r4.reserve_token into r10 as Pool;
-    set r10 into pool[0field];
-    add r3 1u128 into r11;
-    set r11 into loan_id[0field];
+    cast r0 r1 r2 into r7 as Loan;
+    set r7 into loan[r3];
+    add r4.current_loaned_token r1 into r8;
+    cast r8 r4.reserve_token into r9 as Pool;
+    set r9 into pool[0field];
+    add r3 1u128 into r10;
+    set r10 into loan_id[0field];

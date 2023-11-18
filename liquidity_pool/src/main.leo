@@ -12,8 +12,7 @@ program liquidity_pool.aleo {
     // incremental loan id
     mapping loan_id: field => u128;
     // loan id to details
-    mapping loan: LoanID => Loan;
-    // always 0field as default
+    mapping loan: u128 => Loan;
     mapping pool: field => Pool;
     // always 0field as default
     // withdrawal request
@@ -24,12 +23,8 @@ program liquidity_pool.aleo {
         reserve_token: u64, // staked liquudity amount
     }
 
-    struct LoanID {
-        borrower: address,
-        id: u128,
-    }
-
     struct Loan {
+        borrower: address,
         amount: u64,
         duration: u32,
     }
@@ -128,12 +123,8 @@ program liquidity_pool.aleo {
         let p: Pool = pool.get(0field);
         assert(p.reserve_token - p.current_loaned_token >= amount);
 
-        let l: LoanID = LoanID {
+        loan.set(lid, Loan {
             borrower: caller,
-            id: lid,
-        };
-
-        loan.set(l, Loan {
             amount: amount,
             duration: duration,
         });
@@ -146,5 +137,5 @@ program liquidity_pool.aleo {
         loan_id.set(0field, lid + 1u128);
     }
     
-    
+
 }
