@@ -2,7 +2,7 @@
 import credits.leo;
 import zkid_nft_001.leo;
 
-program liquidity_pool.aleo {
+program zkid_lp_001.aleo {
 
     const FEE: u32 = 3u32;
 
@@ -27,6 +27,7 @@ program liquidity_pool.aleo {
         borrower: address,
         amount: u64,
         duration: u32,
+        sent: bool,
     }
 
     // ========================= pool interactions =========================
@@ -110,8 +111,8 @@ program liquidity_pool.aleo {
         zkid: zkid_nft_001.leo/NFT.record,
     ) -> zkid_nft_001.leo/NFT.record {
         assert_neq(amount, 0u64);
-        zkid_nft_001.leo/zkid_transfer_private(zkid, aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw);
-        return then finalize(self.caller, amount, duration);
+        let zid: NFT = zkid_nft_001.leo/zkid_transfer_private(zkid, aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw);
+        return zid then finalize(self.caller, amount, duration);
     }
 
     finalize get_loan(
@@ -127,6 +128,7 @@ program liquidity_pool.aleo {
             borrower: caller,
             amount: amount,
             duration: duration,
+            sent: false,
         });
 
         // update pool
@@ -137,5 +139,20 @@ program liquidity_pool.aleo {
         loan_id.set(0field, lid + 1u128);
     }
     
+    transition send_loan(
+        amount: u64,
+        input: credits.leo/credits.record,
+        zkid: zkid_nft_001.leo/NFT.record,
+    ) -> (
+        zkid_nft_001.leo/NFT.record,
+        credits.leo/credits.record,
+        credits.leo/credits.record,
+    ) {
+        let r: (credits, credits) = credits.leo/transfer_private(input, zkid.owner, amount);
+        return (zkid, r.0, r.1) then finalize(zkid.owner, amount);
+    }
 
+    finalize send_loan(borrower: address, amount: u64) {
+        assert(amount > 0u64);
+    }
 }

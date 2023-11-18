@@ -1,6 +1,6 @@
 import credits.aleo;
 import zkid_nft_001.aleo;
-program liquidity_pool.aleo;
+program zkid_lp_001.aleo;
 
 
 
@@ -14,6 +14,7 @@ struct Loan:
     borrower as address;
     amount as u64;
     duration as u32;
+    sent as boolean;
 
 
 mapping balance:
@@ -48,7 +49,7 @@ function add_liquidity:
     async add_liquidity self.caller r0 into r4;
     output r2 as credits.aleo/credits.record;
     output r3 as credits.aleo/credits.record;
-    output r4 as liquidity_pool.aleo/add_liquidity.future;
+    output r4 as zkid_lp_001.aleo/add_liquidity.future;
 
 finalize add_liquidity:
     input r0 as address.public;
@@ -67,7 +68,7 @@ function remove_liquidity:
     input r0 as u64.private;
     assert.neq r0 0u64;
     async remove_liquidity self.caller r0 into r1;
-    output r1 as liquidity_pool.aleo/remove_liquidity.future;
+    output r1 as zkid_lp_001.aleo/remove_liquidity.future;
 
 finalize remove_liquidity:
     input r0 as address.public;
@@ -91,7 +92,7 @@ function withdrawal:
     async withdrawal r0 r1 into r5;
     output r3 as credits.aleo/credits.record;
     output r4 as credits.aleo/credits.record;
-    output r5 as liquidity_pool.aleo/withdrawal.future;
+    output r5 as zkid_lp_001.aleo/withdrawal.future;
 
 finalize withdrawal:
     input r0 as address.public;
@@ -109,7 +110,8 @@ function get_loan:
     assert.neq r0 0u64;
     call zkid_nft_001.aleo/zkid_transfer_private r2 aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw into r3;
     async get_loan self.caller r0 r1 into r4;
-    output r4 as liquidity_pool.aleo/get_loan.future;
+    output r3 as zkid_nft_001.aleo/NFT.record;
+    output r4 as zkid_lp_001.aleo/get_loan.future;
 
 finalize get_loan:
     input r0 as address.public;
@@ -120,10 +122,28 @@ finalize get_loan:
     sub r4.reserve_token r4.current_loaned_token into r5;
     gte r5 r1 into r6;
     assert.eq r6 true;
-    cast r0 r1 r2 into r7 as Loan;
+    cast r0 r1 r2 false into r7 as Loan;
     set r7 into loan[r3];
     add r4.current_loaned_token r1 into r8;
     cast r8 r4.reserve_token into r9 as Pool;
     set r9 into pool[0field];
     add r3 1u128 into r10;
     set r10 into loan_id[0field];
+
+
+function send_loan:
+    input r0 as u64.private;
+    input r1 as credits.aleo/credits.record;
+    input r2 as zkid_nft_001.aleo/NFT.record;
+    call credits.aleo/transfer_private r1 r2.owner r0 into r3 r4;
+    async send_loan r2.owner r0 into r5;
+    output r2 as zkid_nft_001.aleo/NFT.record;
+    output r3 as credits.aleo/credits.record;
+    output r4 as credits.aleo/credits.record;
+    output r5 as zkid_lp_001.aleo/send_loan.future;
+
+finalize send_loan:
+    input r0 as address.public;
+    input r1 as u64.public;
+    gt r1 0u64 into r2;
+    assert.eq r2 true;
