@@ -7,7 +7,7 @@ program zkid_nft_001.aleo {
     // }
 
     // base uri ascii bits. Include as many data pieces as necessary to encapsulate the uri. Padded with 0s at the end.
-    struct BaseURI {
+    struct URI {
         data0: u128, // Part 1 of the base uri in bits. Bits should be the representation of the hexadecimal bytes for the ASCII text of the URL
         data1: u128,
         data2: u128,
@@ -20,6 +20,7 @@ program zkid_nft_001.aleo {
 
     record NFT {
         private owner: address,
+        private id_owner: address,
         data0: u128, // Part 1 of the base uri in bits. Bits should be the representation of the hexadecimal bytes for the ASCII text of the URL
         data1: u128,
         data2: u128,
@@ -107,10 +108,11 @@ program zkid_nft_001.aleo {
         toggle_settings.set(1u8, 0u32); // block height when mint is allowed
     }
 
-    transition issue_zkid(private requester: address, private personal_info: BaseURI) -> NFT {
+    transition issue_zkid(private requester: address, private personal_info: URI) -> NFT {
         assert_eq(self.caller, aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw);
         return NFT {
             owner: requester,
+            id_owner: requester,
             data0: personal_info.data0,
             data1: personal_info.data1,
             data2: personal_info.data2,
@@ -209,6 +211,7 @@ program zkid_nft_001.aleo {
     {
         return NFT {
             owner: receiver,
+            id_owner: nft.id_owner,
             data0: nft.data0,
             data1: nft.data1,
             data2: nft.data2,
@@ -220,6 +223,7 @@ program zkid_nft_001.aleo {
         return (
             NFT {
                 owner: nft.owner,
+                id_owner: nft.id_owner,
                 data0: nft.data0,
                 data1: nft.data1,
                 data2: nft.data2,

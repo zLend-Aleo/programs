@@ -1,6 +1,6 @@
 program zkid_nft_001.aleo;
 
-struct BaseURI:
+struct URI:
     data0 as u128;
     data1 as u128;
     data2 as u128;
@@ -8,6 +8,7 @@ struct BaseURI:
 
 record NFT:
     owner as address.private;
+    id_owner as address.private;
     data0 as u128.private;
     data1 as u128.private;
     data2 as u128.private;
@@ -45,9 +46,9 @@ finalize initialize_collection:
 
 function issue_zkid:
     input r0 as address.private;
-    input r1 as BaseURI.private;
+    input r1 as URI.private;
     assert.eq self.caller aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw;
-    cast r0 r1.data0 r1.data1 r1.data2 r1.data3 into r2 as NFT.record;
+    cast r0 r0 r1.data0 r1.data1 r1.data2 r1.data3 into r2 as NFT.record;
     async issue_zkid into r3;
     output r2 as NFT.record;
     output r3 as zkid_nft_001.aleo/issue_zkid.future;
@@ -117,14 +118,14 @@ finalize authorize:
 function zkid_transfer_private:
     input r0 as NFT.record;
     input r1 as address.private;
-    cast r1 r0.data0 r0.data1 r0.data2 r0.data3 into r2 as NFT.record;
+    cast r1 r0.id_owner r0.data0 r0.data1 r0.data2 r0.data3 into r2 as NFT.record;
     output r2 as NFT.record;
 
 
 function prove_ownership:
     input r0 as NFT.record;
     input r1 as address.private;
-    cast r0.owner r0.data0 r0.data1 r0.data2 r0.data3 into r2 as NFT.record;
+    cast r0.owner r0.id_owner r0.data0 r0.data1 r0.data2 r0.data3 into r2 as NFT.record;
     cast r1 r0.owner into r3 as NFT_ownership.record;
     output r2 as NFT.record;
     output r3 as NFT_ownership.record;

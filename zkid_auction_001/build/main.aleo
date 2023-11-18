@@ -15,21 +15,44 @@ record Bid:
     is_paid as boolean.private;
 
 
+mapping start:
+	key as u128.public;
+	value as boolean.public;
+
+
 mapping paid:
 	key as u128.public;
 	value as boolean.public;
+
+function start_auction:
+    input r0 as u128.private;
+    async start_auction r0 into r1;
+    output r1 as zkid_auction_001.aleo/start_auction.future;
+
+finalize start_auction:
+    input r0 as u128.public;
+    set true into start[r0];
+
 
 function place_bid:
     input r0 as u64.private;
     input r1 as u128.private;
     cast aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw self.caller r0 r1 false false into r2 as Bid.record;
+    async place_bid r1 into r3;
     output r2 as Bid.record;
+    output r3 as zkid_auction_001.aleo/place_bid.future;
+
+finalize place_bid:
+    input r0 as u128.public;
+    get start[r0] into r1;
+    assert.eq r1 true;
 
 
 function resolve:
     input r0 as Bid.record;
     input r1 as Bid.record;
     assert.eq self.caller aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw;
+    assert.eq r0.loan_id r1.loan_id;
     gte r0.amount r1.amount into r2;
     ternary r2 r0.owner r1.owner into r3;
     ternary r2 r0.bidder r1.bidder into r4;
