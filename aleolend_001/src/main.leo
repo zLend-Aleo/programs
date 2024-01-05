@@ -1,8 +1,8 @@
-// The 'liquidity_pool' program.
+// The 'aleolend_001' program.
 import credits.leo;
 import zkid_nft_001.leo;
 
-program zkid_lp_001.aleo {
+program aleolend_001.aleo {
 
     const FEE: u64 = 3u64;
     const SCALE: u64 = 100u64;
@@ -172,7 +172,8 @@ program zkid_lp_001.aleo {
         credits.leo/credits.record,
         credits.leo/credits.record,
     ) {
-        let interest: u64 = (amount * FEE * SCALE) / SCALE;
+        let interest: u64 = amount * FEE / SCALE;
+        if (interest == 0u64) {interest = 1u64;} // set min interest if amount too minimum
         let r: (credits, credits) = credits.leo/transfer_private(input, zkid.owner, amount - interest);
         return (zkid, r.0, r.1) then finalize(loan_id, zkid.owner, amount, interest);
     }

@@ -1,6 +1,6 @@
 import credits.aleo;
 import zkid_nft_001.aleo;
-program zkid_lp_001.aleo;
+program aleolend_001.aleo;
 
 
 
@@ -56,7 +56,7 @@ function add_liquidity:
     async add_liquidity self.caller r0 into r4;
     output r2 as credits.aleo/credits.record;
     output r3 as credits.aleo/credits.record;
-    output r4 as zkid_lp_001.aleo/add_liquidity.future;
+    output r4 as aleolend_001.aleo/add_liquidity.future;
 
 finalize add_liquidity:
     input r0 as address.public;
@@ -75,7 +75,7 @@ function remove_liquidity:
     input r0 as u64.private;
     assert.neq r0 0u64;
     async remove_liquidity self.caller r0 into r1;
-    output r1 as zkid_lp_001.aleo/remove_liquidity.future;
+    output r1 as aleolend_001.aleo/remove_liquidity.future;
 
 finalize remove_liquidity:
     input r0 as address.public;
@@ -99,7 +99,7 @@ function withdrawal:
     async withdrawal r0 r1 into r5;
     output r3 as credits.aleo/credits.record;
     output r4 as credits.aleo/credits.record;
-    output r5 as zkid_lp_001.aleo/withdrawal.future;
+    output r5 as aleolend_001.aleo/withdrawal.future;
 
 finalize withdrawal:
     input r0 as address.public;
@@ -118,7 +118,7 @@ function get_loan:
     call zkid_nft_001.aleo/zkid_transfer_private r2 aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw into r3;
     async get_loan self.caller r0 r1 into r4;
     output r3 as zkid_nft_001.aleo/NFT.record;
-    output r4 as zkid_lp_001.aleo/get_loan.future;
+    output r4 as aleolend_001.aleo/get_loan.future;
 
 finalize get_loan:
     input r0 as address.public;
@@ -144,7 +144,7 @@ function return_id_without_loan:
     call zkid_nft_001.aleo/zkid_transfer_private r1 r1.id_owner into r2;
     async return_id_without_loan r0 into r3;
     output r2 as zkid_nft_001.aleo/NFT.record;
-    output r3 as zkid_lp_001.aleo/return_id_without_loan.future;
+    output r3 as aleolend_001.aleo/return_id_without_loan.future;
 
 finalize return_id_without_loan:
     input r0 as u128.public;
@@ -159,15 +159,16 @@ function send_loan:
     input r2 as credits.aleo/credits.record;
     input r3 as zkid_nft_001.aleo/NFT.record;
     mul r1 3u64 into r4;
-    mul r4 100u64 into r5;
-    div r5 100u64 into r6;
-    sub r1 r6 into r7;
-    call credits.aleo/transfer_private r2 r3.owner r7 into r8 r9;
-    async send_loan r0 r3.owner r1 r6 into r10;
+    div r4 100u64 into r5;
+    is.eq r5 0u64 into r6;
+    ternary r6 1u64 r5 into r7;
+    sub r1 r7 into r8;
+    call credits.aleo/transfer_private r2 r3.owner r8 into r9 r10;
+    async send_loan r0 r3.owner r1 r7 into r11;
     output r3 as zkid_nft_001.aleo/NFT.record;
-    output r8 as credits.aleo/credits.record;
     output r9 as credits.aleo/credits.record;
-    output r10 as zkid_lp_001.aleo/send_loan.future;
+    output r10 as credits.aleo/credits.record;
+    output r11 as aleolend_001.aleo/send_loan.future;
 
 finalize send_loan:
     input r0 as u128.public;
@@ -193,7 +194,7 @@ function repay_loan:
     async repay_loan r0 self.caller r1 into r5;
     output r3 as credits.aleo/credits.record;
     output r4 as credits.aleo/credits.record;
-    output r5 as zkid_lp_001.aleo/repay_loan.future;
+    output r5 as aleolend_001.aleo/repay_loan.future;
 
 finalize repay_loan:
     input r0 as u128.public;
@@ -213,7 +214,7 @@ function return_id:
     call zkid_nft_001.aleo/zkid_transfer_private r2 r2.id_owner into r3;
     async return_id r0 r1 r2.id_owner into r4;
     output r3 as zkid_nft_001.aleo/NFT.record;
-    output r4 as zkid_lp_001.aleo/return_id.future;
+    output r4 as aleolend_001.aleo/return_id.future;
 
 finalize return_id:
     input r0 as u128.public;
@@ -227,7 +228,7 @@ finalize return_id:
 function liquidate:
     input r0 as u128.private;
     async liquidate r0 into r1;
-    output r1 as zkid_lp_001.aleo/liquidate.future;
+    output r1 as aleolend_001.aleo/liquidate.future;
 
 finalize liquidate:
     input r0 as u128.public;
