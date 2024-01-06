@@ -93,6 +93,7 @@ program aleolend_001.aleo {
     }
 
     // admin only function
+    // amount parameter is required because getting mapping only available in finalize and transfer happens during transition
     transition withdrawal(
         to: address,
         amount: u64,
