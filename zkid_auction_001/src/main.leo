@@ -96,7 +96,7 @@ program zkid_auction_001.aleo {
     transition pay_bid(bid: Bid, input: credits.leo/credits.record) -> Bid {
         credits.leo/transfer_private(input, aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw, bid.amount);
         return Bid {
-            owner: bid.bidder,
+            owner: aleo1fjmx66zrmfxx288udrw93re4x9xvxkuszwuegmf78prt3shc2yrscf6shw,
             bidder: bid.bidder,
             amount: bid.amount,
             loan_id: bid.loan_id,
